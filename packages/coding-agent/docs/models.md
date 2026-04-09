@@ -15,6 +15,8 @@ Add custom providers and models (Ollama, vLLM, LM Studio, proxies) via `~/.pi/ag
 
 ## Minimal Example
 
+If you want runtime debug output for models.json loading and auth resolution, set `PI_CODING_AGENT_DEBUG=1` before starting pi.
+
 For local models (Ollama, LM Studio, vLLM), only `id` is required per model:
 
 ```json
@@ -116,6 +118,38 @@ Use `google-generative-ai` with a `baseUrl` to add models from Google AI Studio,
 ```
 
 The `baseUrl` is required when adding custom models to the `google-generative-ai` API type.
+
+## Local LM Studio with Google model IDs
+
+If you want to expose a local LM Studio OpenAI-compatible server with the same `google/gemma-4-26b-a4b-it` model ID, register it under the built-in `google` provider and use `openai-completions`.
+
+```json
+{
+  "providers": {
+    "google": {
+      "api": "openai-completions",
+      "baseUrl": "http://127.0.0.1:3000/v1",
+      "apiKey": "LMSTUDIO_API_KEY",
+      "compat": {
+        "supportsDeveloperRole": false,
+        "supportsReasoningEffort": false
+      },
+      "models": [
+        {
+          "id": "gemma-4-26b-a4b-it",
+          "name": "Gemma 4 26B A4B (LM Studio)",
+          "input": ["text", "image"],
+          "reasoning": true,
+          "contextWindow": 262144,
+          "maxTokens": 8192
+        }
+      ]
+    }
+  }
+}
+```
+
+This lets `pi` treat your local LM Studio endpoint like a Google model while preserving OpenAI-compatible syntax.
 
 ## Supported APIs
 

@@ -1,0 +1,23 @@
+{
+  "providers": {
+    "google": {
+      "api": "openai-completions",
+      "baseUrl": "http://127.0.0.1:3000/v1",
+      "apiKey": "LMSTUDIO_API_KEY",
+      "compat": {
+        "supportsDeveloperRole": false,
+        "supportsReasoningEffort": false
+      },
+      "models": [
+        {
+          "id": "gemma-4-26b-a4b-it",
+          "name": "Gemma 4 26B A4B (LM Studio)",
+          "input": ["text", "image"],
+          "reasoning": true,
+          "contextWindow": 262144,
+          "maxTokens": 8192
+        }
+      ]
+    }
+  }
+}

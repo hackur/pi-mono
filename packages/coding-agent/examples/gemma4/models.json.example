@@ -1,0 +1,19 @@
+{
+  "providers": {
+    "gemini": {
+      "api": "google-generative-ai",
+      "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
+      "apiKey": "GEMINI_API_KEY",
+      "models": [
+        {
+          "id": "gemma-4-26b-a4b-it",
+          "name": "Gemma 4 26B A4B",
+          "input": ["text", "image"],
+          "reasoning": true,
+          "contextWindow": 256000,
+          "maxTokens": 8192
+        }
+      ]
+    }
+  }
+}

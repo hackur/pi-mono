@@ -33,6 +33,13 @@ import {
 
 const Ajv = (AjvModule as any).default || AjvModule;
 const ajv = new Ajv();
+const DEBUG_MODEL_REGISTRY = process.env.PI_CODING_AGENT_DEBUG === "1";
+
+function debugLog(...args: unknown[]): void {
+	if (DEBUG_MODEL_REGISTRY) {
+		console.debug("[ModelRegistry]", ...args);
+	}
+}
 
 // Schema for OpenRouter routing preferences
 const PercentileCutoffsSchema = Type.Object({
@@ -451,7 +458,15 @@ export class ModelRegistry {
 				}
 			}
 
-			return { models: this.parseModels(config), overrides, modelOverrides, error: undefined };
+			const parsedModels = this.parseModels(config);
+			debugLog("Loaded models.json", {
+				path: modelsJsonPath,
+				providers: Object.keys(config.providers),
+				modelCount: parsedModels.length,
+				modelIds: parsedModels.map((m) => `${m.provider}/${m.id}`),
+			});
+
+			return { models: parsedModels, overrides, modelOverrides, error: undefined };
 		} catch (error) {
 			if (error instanceof SyntaxError) {
 				return emptyCustomModelsResult(`Failed to parse models.json: ${error.message}\n\nFile: ${modelsJsonPath}`);
@@ -630,6 +645,15 @@ export class ModelRegistry {
 				model.headers || providerHeaders || modelHeaders
 					? { ...model.headers, ...providerHeaders, ...modelHeaders }
 					: undefined;
+
+			debugLog("Resolving auth for model", {
+				model: `${model.provider}/${model.id}`,
+				hasApiKey: Boolean(apiKey),
+				fromAuthStorage: apiKeyFromAuthStorage !== undefined,
+				providerHeaders: providerHeaders ? Object.keys(providerHeaders) : [],
+				modelHeaders: modelHeaders ? Object.keys(modelHeaders) : [],
+				authHeader: providerConfig?.authHeader,
+			});
 
 			if (providerConfig?.authHeader) {
 				if (!apiKey) {

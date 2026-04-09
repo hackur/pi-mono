@@ -1,0 +1,10 @@
+{
+  "name": "pi-package-gemma4",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "keywords": ["pi-package", "gemma", "google-gemini", "google-generative-ai"],
+  "pi": {
+    "extensions": ["./extension.ts"]
+  }
+}

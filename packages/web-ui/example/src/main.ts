@@ -69,9 +69,12 @@ let agent: Agent;
 let chatPanel: ChatPanel;
 let agentUnsubscribe: (() => void) | undefined;
 
+const isUserMessage = (m: AgentMessage): m is AgentMessage & { role: "user" | "user-with-attachments" } =>
+	m.role === "user" || m.role === "user-with-attachments";
+
 const generateTitle = (messages: AgentMessage[]): string => {
-	const firstUserMsg = messages.find((m) => m.role === "user" || m.role === "user-with-attachments");
-	if (!firstUserMsg || (firstUserMsg.role !== "user" && firstUserMsg.role !== "user-with-attachments")) return "";
+	const firstUserMsg = messages.find(isUserMessage);
+	if (!firstUserMsg) return "";
 
 	let text = "";
 	const content = firstUserMsg.content;

@@ -331,6 +331,75 @@ describe("ModelRegistry", () => {
 			}
 		});
 
+		describe("openai-completions custom google provider", () => {
+			test("supports local LM Studio google/gemma-4-26b-a4b-it custom model", () => {
+				writeRawModelsJson({
+					google: {
+						baseUrl: "http://127.0.0.1:3000/v1",
+						apiKey: "LMSTUDIO_API_KEY",
+						api: "openai-completions",
+						compat: {
+							supportsDeveloperRole: false,
+							supportsReasoningEffort: false,
+						},
+						models: [
+							{
+								id: "gemma-4-26b-a4b-it",
+								name: "Gemma 4 26B A4B (LM Studio)",
+								reasoning: true,
+								input: ["text", "image"],
+								cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+								contextWindow: 262144,
+								maxTokens: 8192,
+							},
+						],
+					},
+				});
+
+				const registry = ModelRegistry.create(authStorage, modelsJsonPath);
+				const model = registry.find("google", "gemma-4-26b-a4b-it");
+
+				expect(model).toBeDefined();
+				expect(model?.baseUrl).toBe("http://127.0.0.1:3000/v1");
+				expect(model?.api).toBe("openai-completions");
+				const compat = model?.compat as OpenAICompletionsCompat | undefined;
+				expect(compat?.supportsDeveloperRole).toBe(false);
+				expect(compat?.supportsReasoningEffort).toBe(false);
+				expect(registry.hasConfiguredAuth(model!)).toBe(true);
+			});
+
+			test("custom google provider resolves api key and headers", async () => {
+				writeRawModelsJson({
+					google: {
+						baseUrl: "http://127.0.0.1:3000/v1",
+						apiKey: "LMSTUDIO_API_KEY",
+						api: "openai-completions",
+						models: [
+							{
+								id: "gemma-4-26b-a4b-it",
+								reasoning: true,
+								input: ["text", "image"],
+								cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+								contextWindow: 262144,
+								maxTokens: 8192,
+							},
+						],
+					},
+				});
+
+				const registry = ModelRegistry.create(authStorage, modelsJsonPath);
+				const model = registry.find("google", "gemma-4-26b-a4b-it");
+				expect(model).toBeDefined();
+				const response = await registry.getApiKeyAndHeaders(model!);
+				expect(response.ok).toBe(true);
+				if (!response.ok) {
+					throw new Error(`Expected auth resolution to succeed: ${response.error}`);
+				}
+				expect(response.apiKey).toBe("LMSTUDIO_API_KEY");
+				expect(response.headers).toBeUndefined();
+			});
+		});
+
 		test("compat schema accepts reasoningEffortMap and supportsStrictMode", () => {
 			writeRawModelsJson({
 				demo: {
